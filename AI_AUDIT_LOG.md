@@ -13,3 +13,16 @@ This document records the human-in-the-loop oversight, sanity checks, architectu
 * **Sanity Checks Performed:**
     * Ran `mvn clean test` to ensure all 20 strategy registry and validation unit tests executed and passed cleanly.
     * Verified that `NotificationChannelRegistry` correctly handles duplicate bean registrations and throws `UnsupportedChannelException` on unknown channels.
+
+---
+
+## Milestone 2: Infrastructure Adapters (Mailpit & Slack)
+
+* **AI Output Summary:** Cursor successfully implemented `EmailNotificationChannel` (using `JavaMailSender` configured for local Mailpit) and `SlackNotificationChannel` (using Spring `RestClient` and a Java 21 `SlackWebhookPayload` record). Both adapters cleanly implement the `NotificationChannelService` interface and register automatically into the `NotificationChannelRegistry`. Graceful exception handling and SLF4J logging were introduced to swallow transport failures, preventing one failing channel from blocking others.
+* **AI Architecture & Adaptation:**
+  * *Jackson Converter Adaptation:* Cursor initially encountered test failures with legacy Jackson 2 HTTP converters and automatically adapted by aligning with Spring Boot 4's updated Jackson 3 HTTP converter specifications.
+  * *Maven Surefire Test Discovery Fix:* Cursor noted that the Maven Surefire plugin ignores classes ending in `IT` (Integration Test) during standard `mvn test` phases and appropriately adjusted the adapter test naming convention so validation executes immediately during the build phase.
+  * *Human Review:* Both NotificationChannels are implemented correctly. Tests and build passed successfully.
+* **Sanity Checks Performed:**
+  * Verified unit tests using Mockito and Spring's `MockRestServiceServer` for the Slack client.
+  * Ran `mvn clean test` to confirm all unit tests and registry integration wiring compiled and passed with zero failures.
