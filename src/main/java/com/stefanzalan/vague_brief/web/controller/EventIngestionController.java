@@ -3,6 +3,12 @@ package com.stefanzalan.vague_brief.web.controller;
 import com.stefanzalan.vague_brief.domain.SystemEvent;
 import com.stefanzalan.vague_brief.evaluation.EventEvaluationEngine;
 import com.stefanzalan.vague_brief.web.dto.IngestEventRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +24,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/v1/events")
+@Tag(name = "Event Ingestion", description = "APIs for ingesting system events for rule-based notification dispatch")
 public class EventIngestionController {
 
     private final EventEvaluationEngine evaluationEngine;
@@ -26,12 +33,11 @@ public class EventIngestionController {
         this.evaluationEngine = evaluationEngine;
     }
 
-    /**
-     * Ingest a system event for rule matching and notification dispatch.
-     *
-     * @param request the event ingestion request
-     * @return HTTP 202 Accepted with confirmation message
-     */
+    @Operation(summary = "Ingest a system event", description = "Accepts a system event for rule matching and asynchronous notification dispatch")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Event accepted for processing", content = @Content(schema = @Schema(type = "string"))),
+            @ApiResponse(responseCode = "400", description = "Invalid request body")
+    })
     @PostMapping("/ingest")
     public ResponseEntity<String> ingestEvent(@Valid @RequestBody IngestEventRequest request) {
         SystemEvent event = new SystemEvent(

@@ -69,3 +69,29 @@ This document records the human-in-the-loop oversight, sanity checks, architectu
   - Wrote 3 unit tests for `EventIngestionController` covering valid event processing and response verification
   - Fixed compilation errors by adding missing imports for DTO classes
   - Ran `mvn clean test` - all 50 tests passed successfully (including 10 new controller tests)
+
+---
+
+## Milestone 5: OpenAPI Documentation, Resilience, & Integration Testing
+
+* **AI Output Summary:** Cascade successfully implemented production readiness features with:
+  - SpringDoc OpenAPI starter dependency (springdoc-openapi-starter-webmvc-ui v2.7.0) for Spring Boot 4 compatibility
+  - `OpenApiConfiguration` class with API metadata (title, description, version, contact, license)
+  - OpenAPI annotations on `AdminRuleController`: `@Tag`, `@Operation`, `@ApiResponses`, `@Parameter` for all CRUD endpoints
+  - OpenAPI annotations on `EventIngestionController`: `@Tag`, `@Operation`, `@ApiResponses` for ingest endpoint
+  - Verified existing error handling in channel services already catches exceptions locally and logs via SLF4J
+  - Confirmed virtual thread executor configuration in `AsyncConfiguration` uses `Executors.newVirtualThreadPerTaskExecutor()`
+  - End-to-end integration test (`EndToEndIntegrationTest`) with 4 test cases covering rule creation, event ingestion, matching logic, and disabled rules
+* **AI Architecture & Adaptation:**
+  - Initially attempted MockMvc-based integration test but encountered Spring Boot 4 test dependency compatibility issues
+  - Adapted to use direct controller injection with `@SpringBootTest` for integration testing
+  - Channel services already had proper try-catch blocks with SLF4J logging for error isolation
+  - Virtual thread executor was already properly configured in Milestone 3
+  - Swagger UI accessible at `/swagger-ui.html` and `/swagger-ui/index.html` via SpringDoc auto-configuration
+* **Sanity Checks Performed:**
+  - Wrote 4 integration test cases verifying complete flow: create rule → ingest event → verify evaluation and repository state
+  - Verified error handling in `EmailNotificationChannel` catches `MailException` and logs errors without propagating
+  - Verified error handling in `SlackNotificationChannel` catches `RestClientException` and logs errors without propagating
+  - Verified `EventEvaluationEngine.dispatchNotification` has try-catch wrapper to prevent one channel failure from blocking others
+  - Added `jackson-databind` dependency for JSON serialization in controllers (already present from Milestone 4)
+  - Ran `mvn clean test` - all 54 tests passed successfully (including 4 new integration tests)
