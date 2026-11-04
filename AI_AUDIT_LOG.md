@@ -26,3 +26,24 @@ This document records the human-in-the-loop oversight, sanity checks, architectu
 * **Sanity Checks Performed:**
   * Verified unit tests using Mockito and Spring's `MockRestServiceServer` for the Slack client.
   * Ran `mvn clean test` to confirm all unit tests and registry integration wiring compiled and passed with zero failures.
+
+---
+
+## Milestone 3: Event Detection & Evaluation Engine
+
+* **AI Output Summary:** Cascade successfully implemented the core event evaluation engine with:
+  - `AlertRuleRepository`: Thread-safe in-memory repository using `ConcurrentHashMap` for storing and retrieving alert rules
+  - `EventEvaluationEngine`: Service that processes incoming `SystemEvent` objects, matches them against enabled rules based on category and severity thresholds, and asynchronously dispatches notifications
+  - `AsyncConfiguration`: Spring configuration providing a Java 21 Virtual Thread executor (`Executors.newVirtualThreadPerTaskExecutor()`) for non-blocking concurrent channel dispatching
+  - Matching logic: Rules match events when category equals and event severity meets or exceeds the rule's minimum severity threshold
+  - Comprehensive unit tests (9 test cases) verifying matching behavior, disabled rule handling, concurrent dispatch to multiple channels, and error isolation
+* **AI Architecture & Design:**
+  - Used constructor injection for all dependencies following Spring Boot 4 best practices
+  - Implemented graceful error handling in dispatch method to prevent one failing channel from blocking others
+  - Built formatted notification payloads with structured message bodies containing rule name, event details, and timestamps
+  - Virtual thread executor ensures I/O-bound operations (email/Slack) don't block the evaluation thread
+* **Sanity Checks Performed:**
+  - Wrote 9 comprehensive JUnit 5 tests using Mockito to verify rule matching logic, category filtering, severity thresholding, disabled rule skipping, and concurrent multi-channel dispatch
+  - Fixed missing `java.util.List` import in test file
+  - Applied `@MockitoSettings(strictness = Strictness.LENIENT)` to handle unused stubs in shared setUp method
+  - Ran `mvn clean test` - all 40 tests passed successfully (including 9 new EventEvaluationEngine tests)
