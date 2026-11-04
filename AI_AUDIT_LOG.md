@@ -47,3 +47,25 @@ This document records the human-in-the-loop oversight, sanity checks, architectu
   - Fixed missing `java.util.List` import in test file
   - Applied `@MockitoSettings(strictness = Strictness.LENIENT)` to handle unused stubs in shared setUp method
   - Ran `mvn clean test` - all 40 tests passed successfully (including 9 new EventEvaluationEngine tests)
+
+---
+
+## Milestone 4: Admin Management REST API & Event Ingestion Endpoints
+
+* **AI Output Summary:** Cascade successfully implemented the REST controller layer with:
+  - `CreateAlertRuleRequest` and `IngestEventRequest` DTOs with Jakarta validation annotations
+  - `AdminRuleController` with CRUD endpoints: POST / (create), GET / (list), GET /{id} (get by ID), DELETE /{id} (delete)
+  - `EventIngestionController` with POST /ingest endpoint for event processing
+  - Proper HTTP status codes: 201 Created, 200 OK, 202 Accepted, 204 No Content, 404 Not Found
+  - Exception handling via existing `GlobalExceptionHandler` for `RuleNotFoundException`
+  - Unit tests using pure Mockito (without Spring test infrastructure) for both controllers
+* **AI Architecture & Adaptation:**
+  - Initially attempted `@WebMvcTest` with `MockMvc` but encountered Spring Boot 4 compatibility issues with test dependencies
+  - Adapted to plain unit tests using `@ExtendWith(MockitoExtension.class)`, `@Mock`, and `@InjectMocks` for faster, isolated testing
+  - Added `jackson-databind` to main dependencies for JSON serialization in controllers
+  - Used constructor injection throughout following Spring Boot 4 best practices
+* **Sanity Checks Performed:**
+  - Wrote 7 unit tests for `AdminRuleController` covering create, list, get, delete operations and exception handling
+  - Wrote 3 unit tests for `EventIngestionController` covering valid event processing and response verification
+  - Fixed compilation errors by adding missing imports for DTO classes
+  - Ran `mvn clean test` - all 50 tests passed successfully (including 10 new controller tests)
